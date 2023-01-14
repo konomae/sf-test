@@ -1,0 +1,29 @@
+name: lint
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/lint.yml'
+      - '.swiftformat'
+      - '**/*.swift'
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  swiftformat-lint:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nicklockwood/swiftformat:0.50.4
+    steps:
+    - uses: actions/checkout@v3
+    - name: swiftformat
+      run: swiftformat . --report report.json --lint --lenient
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs').promises;
+          const data = await fs.readFile('report.json', 'utf-8');
+          const list = JSON.parse(data);
+          list.forEach((change) => {
+            const file = change.file.replace(process.cwd() + '/', '');
+            console.log(`::error file=${file},line=${change.line}::${change.reason} (${change.rule_id})`);
+          });
