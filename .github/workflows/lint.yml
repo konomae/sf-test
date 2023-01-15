@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 jobs:
-  swiftformat-lint:
+  swiftformat:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/nicklockwood/swiftformat:0.50.4
